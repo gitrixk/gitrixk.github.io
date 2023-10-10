@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registreerimistasu ja Aastamaksu Kalkulaator</title>
-    <!-- Lisame Bootstrap-i stiililehe -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body class="bg-light">
@@ -202,15 +201,11 @@
 
         function doCalculations() {
 			document.getElementById('resultDiv').hidden = false;
-			if (document.getElementById('taxType').value === "registration") {
-				let fee = calculateFee(false);
-				document.getElementById('calcResult').textContent = 'Registreerimistasu: ' + fee.toFixed(2) + ' €';
+			let taxType = document.getElementById('taxType').value;
+			let fee = calculateFee( taxType === "registration" );
+			
+			document.getElementById('calcResult').textContent = (taxType === 'registration' ? 'Registreerimistasu' : 'Aastamaks') + ': ' + fee.toFixed(2) + ' €';
 
-			}
-			if (document.getElementById('taxType').value === "annual") {
-				let tax = calculateFee(true);
-				document.getElementById('calcResult').textContent = 'Aastamaks: ' + tax.toFixed(2) + ' €';
-			}
         }
     </script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
