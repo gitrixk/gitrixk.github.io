@@ -74,7 +74,7 @@
 
 		function getAgeModifier(age) {
 			let ageModifier = 1;
-			if (age >= 5 && age < 14) {
+			if (age >= 5 && age <= 14) {
 				ageModifier -= 0.1 * (age - 5)
 			} else if (age >=15 && age < 20) {
 				return 0.1;
