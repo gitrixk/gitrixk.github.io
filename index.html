@@ -1,56 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>Registreerimistasu ja Aastamaksu Kalkulaator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registreerimistasu ja Aastamaksu Kalkulaator</title>
+    <!-- Lisame Bootstrap-i stiililehe -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
-<body>
-    <h1>Registreerimistasu ja Aastamaksu Kalkulaator</h1>
-    <p>Sisesta sõiduki andmed:</p>
-    <form id="calculatorForm">
-	
-	<label>Maksu tüüp:</label>
-        <select id="taxType">
-            <option value="registration">Registreerimistasu</option>
-            <option value="annual">Aastamaks</option>
-        </select><br><br>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Registreerimistasu ja aastamaksu kalkulaator</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form id="calculatorForm">
+                    <div class="form-group">
+                        <label for="taxType">Maksu tüüp:</label>
+                        <select id="taxType" class="form-control">
+                            <option value="annual">Aastamaks</option>
+                            <option value="registration">Registreerimistasu</option>
+                        </select>
+                    </div>
 
-	<label>Maks aastal:</label>
-        <select id="taxYear">
-            <option value="2023">2023</option>
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
-            <option value="2026">2026</option>
-            <option value="2027">2027</option>
-            <option value="2028">2028</option>
-            <option value="2029">2029</option>
-            <option value="2030">2030</option>
-        </select><br><br>
+                    <div class="form-group">
+                        <label for="taxYear">Maks aastal:</label>
+                        <select id="taxYear" class="form-control">
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                            <option value="2029">2029</option>
+                            <option value="2030">2030</option>
+                            <option value="2031">2031</option>
+                            <option value="2032">2032</option>
+                            <option value="2033">2033</option>
+                            <option value="2034">2034</option>
+                            <option value="2035">2035</option>
+                        </select>
+                    </div>
 
+                    <div class="form-group">
+                        <label for="regYear">Masina esmase registreerimise aasta:</label>
+                        <input type="number" id="regYear" class="form-control" required>
+                    </div>
 
-        <label>Masina esmase registreerimise aasta:</label>
-        <input type="number" id="regYear" required><br><br>
+                    <div class="form-check">
+                        <input type="checkbox" id="electricCar" class="form-check-input" onchange="toggleElectric(event)">
+                        <label for="electricCar" class="form-check-label">Elektriauto</label>
+                    </div>
 
-	<label>Elektriauto</label>
-	<input type="checkbox" id="electricCar" onchange="toggleElectric(event)"/><br><br>
+                    <div class="form-group">
+                        <label for="co2">CO<sub>2</sub> heitkogused (g/km):</label>
+                        <input type="number" id="co2" class="form-control" required>
+                    </div>
 
-        <label>CO<sub>2</sub> heitkogused (g/km):</label>
-        <input type="number" id="co2" required><br><br>
+                    <div class="form-group">
+                        <label for="mass">Täismass (kg):</label>
+                        <input type="number" id="mass" class="form-control" required>
+                    </div>
 
-        <label>Täismass (kg):</label>
-        <input type="number" id="mass" required><br><br>
+                    <div class="form-group">
+                        <label for="vehicleType">Sõidukitüüp:</label>
+                        <select id="vehicleType" class="form-control" onchange="toggleVan(event)">
+                            <option value="car">Sõiduauto</option>
+                            <option value="van">Kaubik</option>
+                        </select>
+                    </div>
 
-        <label>Sõidukitüüp:</label>
-        <select id="vehicleType"  onchange="toggleVan(event)">
-            <option value="car">Sõiduauto</option>
-            <option value="van">Kaubik</option>
-        </select><br><br>
+                    <button type="button" onclick="calculateCosts()" class="btn btn-primary">Arvuta</button>
+                </form>
+            </div>
+        </div>
 
-        <button type="button" onclick="calculateCosts()">Arvuta</button>
-    </form>
-
-    <h2>Tulemus:</h2>
-    <p><span id="calcResult"></span></p>
+        <div id="resultDiv" hidden class="row justify-content-center mt-4">
+            <div class="col-md-6">
+                <h2 class="text-center">Tulemus:</h2>
+                <p class="text-center"><span id="calcResult"></span></p>
+            </div>
+        </div>
+    </div>
 
     <script>
 	
@@ -194,6 +223,7 @@
 
 
         function calculateCosts() {
+			document.getElementById('resultDiv').hidden = false;
 			if (document.getElementById('taxType').value === "registration") {
 				let fee = calculateRegFee();
 				document.getElementById('calcResult').textContent = 'Registreerimistasu: ' + fee.toFixed(2) + ' €';
@@ -205,5 +235,8 @@
 			}
         }
     </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
