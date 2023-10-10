@@ -45,7 +45,7 @@
                     </div>
 
                     <div class="form-check">
-                        <input type="checkbox" id="electricCar" class="form-check-input" onchange="toggleElectric(event)">
+                        <input type="checkbox" id="electricCar" class="form-check-input" onchange="electricChange(event)">
                         <label for="electricCar" class="form-check-label">Elektriauto</label>
                     </div>
 
@@ -61,7 +61,7 @@
 
                     <div class="form-group">
                         <label for="vehicleType">Sõidukitüüp:</label>
-                        <select id="vehicleType" class="form-control" onchange="toggleVan(event)">
+                        <select id="vehicleType" class="form-control" onchange="vanChange(event)">
                             <option value="car">Sõiduauto</option>
                             <option value="van">Kaubik</option>
                         </select>
@@ -82,7 +82,7 @@
 
     <script>
 	
-		function toggleElectric(e) {
+		function electricChange(e) {
 			if (e.target.checked) {
 				document.getElementById('co2').value = "";
 				document.getElementById('co2').disabled = true;
@@ -91,7 +91,7 @@
 			}
 		}
 
-		function toggleVan(e) {
+		function vanChange(e) {
 			if (document.getElementById('vehicleType').value === "van") {
 				document.getElementById('mass').value = "";
 				document.getElementById('mass').disabled = true;
