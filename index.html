@@ -202,7 +202,7 @@
         function doCalculations() {
 			document.getElementById('resultDiv').hidden = false;
 			let taxType = document.getElementById('taxType').value;
-			let fee = calculateFee( taxType === "registration" );
+			let fee = calculateFee( taxType === "annual" );
 			
 			document.getElementById('calcResult').textContent = (taxType === 'registration' ? 'Registreerimistasu' : 'Aastamaks') + ': ' + fee.toFixed(2) + ' €';
 
