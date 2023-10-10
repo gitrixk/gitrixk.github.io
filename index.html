@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	  <title>Registreerimistasu ja Aastamaksu Kalkulaator</title>
+</head>
+<body>
+    <h1>Registreerimistasu ja Aastamaksu Kalkulaator</h1>
+    <p>Sisesta sõiduki andmed:</p>
+    <form id="calculatorForm">
+	
+		<label>Maksu tüüp:</label>
+        <select id="taxType">
+            <option value="registration">Registreerimistasu</option>
+            <option value="annual">Aastamaks</option>
+        </select><br><br>
+
+		<label>Maks aastal:</label>
+        <select id="taxYear">
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
+        </select><br><br>
+
+
+        <label>Masina esmase registreerimise aasta:</label>
+        <input type="number" id="regYear" required><br><br>
+
+		<label>Elektriauto</label>
+		<input type="checkbox" id="electricCar" onchange="toggleElectric(event)"/><br><br>
+
+        <label>CO<sub>2</sub> heitkogused (g/km):</label>
+        <input type="number" id="co2" required><br><br>
+
+        <label>Täismass (kg):</label>
+        <input type="number" id="mass" required><br><br>
+
+        <label>Sõidukitüüp:</label>
+        <select id="vehicleType"  onchange="toggleVan(event)">
+            <option value="car">Sõiduauto</option>
+            <option value="van">Kaubik</option>
+        </select><br><br>
+
+        <button type="button" onclick="calculateCosts()">Arvuta</button>
+    </form>
+
+    <h2>Tulemus:</h2>
+    <p><span id="calcResult"></span></p>
+
+    <script>
+	
+		function toggleElectric(e) {
+			if (e.target.checked) {
+				document.getElementById('co2').value = "";
+				document.getElementById('co2').disabled = true;
+			} else {
+				document.getElementById('co2').disabled = false;
+			}
+		}
+
+		function toggleVan(e) {
+			if (document.getElementById('vehicleType').value === "van") {
+				document.getElementById('mass').value = "";
+				document.getElementById('mass').disabled = true;
+			} else {
+				document.getElementById('mass').disabled = false;
+			}
+		}
+
+		function getAgeModifier(age) {
+			let ageModifier = 1;
+			if (age > 5 && age < 14) {
+				ageModifier -= 0.1 * (age - 5)
+			} else if (age >=15 && age < 20) {
+				return 0.1;
+			} else if (age >= 20) {
+				return 0;
+			}
+			return ageModifier;
+		}
+	
+		function getEmissionPrice(co2, isAnnual, isElectric, vehicleType) {
+			if (isElectric) {
+				return 0;
+			}
+			let emissionPrice = 0;
+			let foreachEnd = false;
+			let steps = [];
+			if (vehicleType === "van") {
+				steps = [
+					{"stepRangeBegin": 0, "stepRangeEnd": 204, "annualPrice": 0, "registerPrice": 0},
+					{"stepRangeBegin": 204, "stepRangeEnd": 250, "annualPrice": 3, "registerPrice": 30},
+					{"stepRangeBegin": 250, "stepRangeEnd": 300, "annualPrice": 3.5, "registerPrice": 35},
+					{"stepRangeBegin": 300, "stepRangeEnd": co2, "annualPrice": 4, "registerPrice": 40}
+				];
+			} else {
+				steps = [
+					{"stepRangeBegin": 0, "stepRangeEnd": 117, "annualPrice": 0, "registerPrice": 5},
+					{"stepRangeBegin": 117, "stepRangeEnd": 150, "annualPrice": 3, "registerPrice": 40},
+					{"stepRangeBegin": 150, "stepRangeEnd": 200, "annualPrice": 3.5, "registerPrice": 60},
+					{"stepRangeBegin": 200, "stepRangeEnd": co2, "annualPrice": 4, "registerPrice": 80}
+				];
+			}
+			steps.forEach((step) =>
+				{
+					if (co2 <= step.stepRangeEnd) {
+						emissionPrice += (co2 - step.stepRangeBegin) * (isAnnual ? step.annualPrice : step.registerPrice);
+						foreachEnd = true;
+					} else {
+						emissionPrice += (step.stepRangeEnd - step.stepRangeBegin) * (isAnnual ? step.annualPrice : step.registerPrice);
+					}
+					if (foreachEnd) {
+						return;
+					}
+				}
+			);
+			return emissionPrice;
+		}
+	
+		function getMassPrice(mass, isAnnual, isElectric) {
+			let massPrice = 0;
+			let kgPrice = isAnnual ? .4 : 4;
+			
+			if (isElectric) {
+				if (mass > 2400) {
+					massPrice += Math.min((mass - 2400) * kgPrice, 1100 * kgPrice);
+				}
+			} else {
+				if (mass > 2000) {
+					massPrice += Math.min((mass - 2000) * kgPrice, 1000 * kgPrice);
+				}
+			}
+			return massPrice;
+		}
+	
+		function getBaseFee(vehicleType, isElectric, isAnnual) {
+			if (isAnnual) {
+				return 50;
+			} else {
+				if (vehicleType === "van" && !isElectric) {
+					return 500;
+				}
+				return 300;
+			}
+		}
+	
+		function calculateRegFee() {
+			const age = parseInt(document.getElementById('taxYear').value) - parseInt(document.getElementById('regYear').value);
+            const co2 = parseFloat(document.getElementById('co2').value);
+            const mass = parseFloat(document.getElementById('mass').value);
+            const vehicleType = document.getElementById('vehicleType').value;
+			const isElectric = document.getElementById('electricCar').checked;
+
+			let fee = 0;
+			
+			fee += getEmissionPrice(co2, false, isElectric, vehicleType);
+
+			if (vehicleType !== "van") {
+				fee += getMassPrice(mass, false, isElectric);
+		
+				fee *= getAgeModifier(age);
+			}
+			
+			fee += getBaseFee(vehicleType, isElectric, false);
+					
+			return fee;
+		}
+
+		function calculateAnnualFee() {
+			const age = parseInt(document.getElementById('taxYear').value) - parseInt(document.getElementById('regYear').value);
+            const co2 = parseFloat(document.getElementById('co2').value);
+            const mass = parseFloat(document.getElementById('mass').value);
+            const vehicleType = document.getElementById('vehicleType').value;
+			const isElectric = document.getElementById('electricCar').checked;
+
+			let tax = 0;
+
+			tax += getEmissionPrice(co2, true, isElectric, vehicleType);
+
+			if (vehicleType !== "van") {
+				tax += getMassPrice(mass, true, isElectric);
+			}
+			
+			tax *= getAgeModifier(age);
+
+			tax += getBaseFee(vehicleType, isElectric, true);
+			return tax;
+		}
+
+
+        function calculateCosts() {
+			if (document.getElementById('taxType').value === "registration") {
+				let fee = calculateRegFee();
+				document.getElementById('calcResult').textContent = 'Registreerimistasu: ' + fee.toFixed(2) + ' €';
+
+			}
+			if (document.getElementById('taxType').value === "annual") {
+				let tax = calculateAnnualFee();
+				document.getElementById('calcResult').textContent = 'Aastamaks: ' + tax.toFixed(2) + ' €';
+			}
+        }
+    </script>
+</body>
+</html>
