@@ -68,7 +68,7 @@
                         </select>
                     </div>
 
-                    <button type="button" onclick="calculateCosts()" class="btn btn-primary">Arvuta</button>
+                    <button type="button" onclick="doCalculations()" class="btn btn-primary">Arvuta</button>
                 </form>
             </div>
         </div>
@@ -200,7 +200,7 @@
 		}
 
 
-        function calculateCosts() {
+        function doCalculations() {
 			document.getElementById('resultDiv').hidden = false;
 			if (document.getElementById('taxType').value === "registration") {
 				let fee = calculateFee(false);
