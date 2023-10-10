@@ -108,14 +108,14 @@
 			}
 			steps.forEach((step) =>
 				{
+					if (foreachEnd) {
+						return;
+					}
 					if (co2 <= step.stepRangeEnd) {
 						emissionPrice += (co2 - step.stepRangeBegin) * (isAnnual ? step.annualPrice : step.registerPrice);
 						foreachEnd = true;
 					} else {
 						emissionPrice += (step.stepRangeEnd - step.stepRangeBegin) * (isAnnual ? step.annualPrice : step.registerPrice);
-					}
-					if (foreachEnd) {
-						return;
 					}
 				}
 			);
