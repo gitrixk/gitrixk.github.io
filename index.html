@@ -44,12 +44,12 @@
                         <input type="number" id="regYear" class="form-control" required>
                     </div>
 
-		    <div class="form-group">
-			    <label for="wltp">CO<sub>2</sub> mõõtmise standard WLTP</label>
-			    <input type="radio" id="wltp" name="co2Standard" value="WLTP" checked><br>
-			    <label for="nedc">CO<sub>2</sub> mõõtmise standard NEDC</label>
-			    <input type="radio" id="nedc" name="co2Standard" value="NEDC">
-		    </div>
+					<div class="form-group">
+						<label for="wltp">CO<sub>2</sub> mõõtmise standard WLTP</label>
+						<input type="radio" id="wltp" name="co2Standard" value="WLTP" checked><br>
+						<label for="nedc">CO<sub>2</sub> mõõtmise standard NEDC</label>
+						<input type="radio" id="nedc" name="co2Standard" value="NEDC">
+					</div>
 
                     <div class="form-group">
                         <label for="co2">CO<sub>2</sub> heitkogused (g/km):</label>
@@ -62,14 +62,20 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="capacity">Töömaht (cm<sup>3</sup>):</label>
+                        <input type="number" id="capacity" class="form-control" disabled required>
+                    </div>
+
+                    <div class="form-group">
                         <label for="vehicleType">Sõidukitüüp:</label>
-                        <select id="vehicleType" class="form-control" onchange="vanChange(event)">
+                        <select id="vehicleType" class="form-control" onchange="vehicleTypeChange(event)">
                             <option value="car">Sõiduauto</option>
                             <option value="van">Kaubik</option>
+							<option value="others">L, MS2, T1b, T3 ja T5-kat (kuni 1000 kg)</option>
                         </select>
                     </div>
 
-		    <div class="form-check">
+                    <div class="form-check">
                         <input type="checkbox" id="electricCar" class="form-check-input" onchange="electricChange(event)">
                         <label for="electricCar" class="form-check-label">Elektriauto</label>
                     </div>
@@ -98,13 +104,32 @@
 			}
 		}
 
-		function vanChange(e) {
-			if (document.getElementById('vehicleType').value === "van") {
-				document.getElementById('mass').value = "";
-				document.getElementById('mass').disabled = true;
-			} else {
-				document.getElementById('mass').disabled = false;
+		function vehicleTypeChange(e) {
+			const vehicleType = document.getElementById('vehicleType').value;
+			
+			let processValues = [];
+			let processFields = [];
+			
+			if (vehicleType === "van") {
+				processValues = [{'name': 'mass', 'value': ''}, {'name': 'capacity', 'value': ''}];
+				processFields = [{'name': 'co2', 'value': false}, {'name': 'mass', 'value': true}, {'name': 'capacity', 'value': true}, {'name': 'wltp', 'value': false}, {'name': 'nedc', 'value': false}, {'name': 'taxType', 'value': false} ]
+
+			} else if (vehicleType === "car") {
+				processValues = [{'name': 'capacity', 'value': ''}];
+				processFields = [{'name': 'co2', 'value': false}, {'name': 'mass', 'value': false}, {'name': 'capacity', 'value': true}, {'name': 'wltp', 'value': false}, {'name': 'nedc', 'value': false}, {'name': 'taxType', 'value': false} ]
+
+			} else if (vehicleType === "others") {
+				processValues = [{'name': 'mass', 'value': ''}, {'name': 'co2', 'value': ''}, {'name': 'taxType', 'value': 'annual'}];
+				processFields = [{'name': 'co2', 'value': true}, {'name': 'mass', 'value': true}, {'name': 'capacity', 'value': false}, {'name': 'wltp', 'value': true}, {'name': 'nedc', 'value': true}, {'name': 'taxType', 'value': true} ]
 			}
+			
+			for (const element of processValues) {
+				document.getElementById(element.name).value = element.value;
+			}
+			
+			for (const element of processFields) {
+				document.getElementById(element.name).disabled = element.value;
+			}	
 		}
 
 		function getAgeModifier(age) {
@@ -187,17 +212,17 @@
 		function calculateFee(isAnnual) {
 			const age = parseInt(document.getElementById('taxYear').value) - parseInt(document.getElementById('regYear').value);
 			const co2StandardIsWLTP = document.getElementsByName('co2Standard')[0].checked;
-			let co2 = parseFloat(document.getElementById('co2').value);
-			const mass = parseFloat(document.getElementById('mass').value);
+			let co2 = parseInt(document.getElementById('co2').value);
+			const mass = parseInt(document.getElementById('mass').value);
 			const vehicleType = document.getElementById('vehicleType').value;
 			const isElectric = document.getElementById('electricCar').checked;
 
 			let tax = 0;
-			
+
 			if (!co2StandardIsWLTP) {
 				co2 *= 1.24;
 			}
-			
+
 			tax += getEmissionPrice(co2, isAnnual, isElectric, vehicleType);
 
 			if (vehicleType !== "van") {
@@ -210,17 +235,43 @@
 			return tax;
 		}
 
+		function calculateOtherCategoriesFee() {
+			const age = parseInt(document.getElementById('taxYear').value) - parseInt(document.getElementById('regYear').value);
+			const capacity = parseInt(document.getElementById('capacity').value);
+			
+			if (age > 20) {
+				return 0;
+			}
+			if (capacity >= 51 && capacity <= 125) {
+				return (age <= 10) ? 30 : 0;
+			} else if (capacity >= 126 && capacity <= 500) {
+				return (age <= 10) ? 45 : 30;
+			} else if (capacity >= 501 && capacity <= 1000) {
+				return (age <= 10) ? 60 : 45;
+			} else if (capacity >= 1001 && capacity <= 1500) {
+				console.log(((age <= 10) ? 75 : 60));
+				return (age <= 10) ? 75 : 60;
+			} else if (capacity > 1500) {
+				return (age <= 10) ? 90 : 75;
+			}
+			return 0;
+		}
 
-        	function doCalculations() {
+        function doCalculations() {
 			document.getElementById('resultDiv').hidden = false;
 			let taxType = document.getElementById('taxType').value;
-			let fee = calculateFee( taxType === "annual" );
+			let fee = 0;
+			if (document.getElementById('vehicleType').value === "others") {
+				fee = calculateOtherCategoriesFee();
+			} else {
+				fee = calculateFee( taxType === "annual" );
+			}
 			
 			document.getElementById('calcResult').textContent = (taxType === 'registration' ? 'Registreerimistasu' : 'Aastamaks') + ': ' + fee.toFixed(2) + ' €';
 
         }
     </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
