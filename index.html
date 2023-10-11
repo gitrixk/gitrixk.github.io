@@ -45,10 +45,10 @@
                     </div>
 
 					<div class="form-group">
-						<label for="wltp">CO<sub>2</sub> mõõtmise standard WLTP</label>
-						<input type="radio" id="wltp" name="co2Standard" value="WLTP" checked><br>
-						<label for="nedc">CO<sub>2</sub> mõõtmise standard NEDC</label>
+						<input type="radio" id="wltp" name="co2Standard" value="WLTP" checked>
+						<label for="wltp">CO<sub>2</sub> mõõtmise standard WLTP</label><br>
 						<input type="radio" id="nedc" name="co2Standard" value="NEDC">
+						<label for="nedc">CO<sub>2</sub> mõõtmise standard NEDC</label>
 					</div>
 
                     <div class="form-group">
@@ -79,7 +79,8 @@
                         <input type="checkbox" id="electricCar" class="form-check-input" onchange="electricChange(event)">
                         <label for="electricCar" class="form-check-label">Elektriauto</label>
                     </div>
-
+					<br>
+					<br>
                     <button type="button" onclick="doCalculations()" class="btn btn-primary">Arvuta</button>
                 </form>
             </div>
@@ -112,15 +113,15 @@
 			
 			if (vehicleType === "van") {
 				processValues = [{'name': 'mass', 'value': ''}, {'name': 'capacity', 'value': ''}];
-				processFields = [{'name': 'co2', 'value': false}, {'name': 'mass', 'value': true}, {'name': 'capacity', 'value': true}, {'name': 'wltp', 'value': false}, {'name': 'nedc', 'value': false}, {'name': 'taxType', 'value': false} ]
+				processFields = [{'name': 'co2', 'value': false}, {'name': 'mass', 'value': true}, {'name': 'capacity', 'value': true}, {'name': 'wltp', 'value': false}, {'name': 'nedc', 'value': false}, {'name': 'taxType', 'value': false}, {'name': 'electricCar', 'value': false} ]
 
 			} else if (vehicleType === "car") {
 				processValues = [{'name': 'capacity', 'value': ''}];
-				processFields = [{'name': 'co2', 'value': false}, {'name': 'mass', 'value': false}, {'name': 'capacity', 'value': true}, {'name': 'wltp', 'value': false}, {'name': 'nedc', 'value': false}, {'name': 'taxType', 'value': false} ]
+				processFields = [{'name': 'co2', 'value': false}, {'name': 'mass', 'value': false}, {'name': 'capacity', 'value': true}, {'name': 'wltp', 'value': false}, {'name': 'nedc', 'value': false}, {'name': 'taxType', 'value': false}, {'name': 'electricCar', 'value': false} ]
 
 			} else if (vehicleType === "others") {
 				processValues = [{'name': 'mass', 'value': ''}, {'name': 'co2', 'value': ''}, {'name': 'taxType', 'value': 'annual'}];
-				processFields = [{'name': 'co2', 'value': true}, {'name': 'mass', 'value': true}, {'name': 'capacity', 'value': false}, {'name': 'wltp', 'value': true}, {'name': 'nedc', 'value': true}, {'name': 'taxType', 'value': true} ]
+				processFields = [{'name': 'co2', 'value': true}, {'name': 'mass', 'value': true}, {'name': 'capacity', 'value': false}, {'name': 'wltp', 'value': true}, {'name': 'nedc', 'value': true}, {'name': 'taxType', 'value': true}, {'name': 'electricCar', 'value': true} ]
 			}
 			
 			for (const element of processValues) {
